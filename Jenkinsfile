@@ -1,0 +1,58 @@
+@Library('library') _
+pipeline 
+{
+    agent any
+    stages
+    {
+        stage('Download')
+        {
+            steps
+            {
+                script
+                {
+                    lib.gitDownload("FormFillApp")
+                }
+            }
+        }
+        stage('build')
+        {
+            steps
+            {
+                script
+                {
+                    lib.build()
+                }
+            }
+        }
+        stage('imageCreation')
+        {
+            steps
+            {
+                script
+                {
+                    lib.dockerContext()
+                }
+            }
+        }
+        stage('image')
+        {
+            steps
+            {
+                script
+                {
+                    lib.dockerBuild("regapp")
+                }
+            }
+        }
+        stage('container')
+        {
+            steps
+            {
+                script
+                {
+                    lib.dockerContainer("regapp-container", "regapp")
+                }
+            }
+        }
+    }
+}
