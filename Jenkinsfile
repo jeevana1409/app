@@ -12,6 +12,26 @@ pipeline {
                 checkout scm
             }
         }
+
+        stage('Initialization - Tag Check') {
+            when {
+                changeRequest()
+            }
+            steps {
+                script {
+                    echo "Checking tag policy..."
+
+                    def tag = sh(script: "git tag --points-at HEAD", returnStdout: true).trim()
+
+                    if (!tag) {
+                        error("❌ No tag found on this commit. PR blocked.")
+                    }
+
+                    echo "✅ Tag found: ${tag}"
+                }
+            }
+        }
+
         stage('Build & SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonar-server') {
@@ -26,15 +46,17 @@ pipeline {
                     waitForQualityGate abortPipeline: true
                 }
             }
-        }  
+        }
+
         stage('Create Pull Request to Dev') {
             when {
-                not {
-                    branch 'dev'
+                allOf {
+                    not { changeRequest() }
+                    not { branch 'dev' }
                 }
             }
             steps {
-                sh 'echo Branch is: $BRANCH_NAME'   
+                echo "Branch is: ${env.BRANCH_NAME}"
 
                 withCredentials([string(credentialsId: 'github-cred', variable: 'GITHUB_TOKEN')]) {
                     sh """
@@ -42,8 +64,8 @@ pipeline {
                         -H "Authorization: token \$GITHUB_TOKEN" \
                         -H "Accept: application/vnd.github.v3+json" \
                         -d '{
-                            "title": "Auto PR: ${env.GIT_BRANCH} → dev",
-                            "head": "feature-branch-xyz",
+                            "title": "Auto PR: ${env.BRANCH_NAME} → dev",
+                            "head": "${env.BRANCH_NAME}",
                             "base": "dev",
                             "body": "Automatically created after successful SonarQube Quality Gate."
                         }'
