@@ -47,6 +47,49 @@ pipeline {
                 }
             }
         }
+        stage('Tag WAR Release') {
+    when {
+        allOf {
+            branch 'dev'
+            not { changeRequest() }
+        }
+    }
+    steps {
+        script {
+            echo "Creating Git tag for WAR release..."
+
+            def version = sh(
+                script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout",
+                returnStdout: true
+            ).trim()
+
+            echo "Version detected: ${version}"
+
+            def tagExists = sh(
+                script: "git tag -l ${version}",
+                returnStdout: true
+            ).trim()
+
+            if (tagExists) {
+                error("❌ Tag ${version} already exists! Version must be incremented.")
+            }
+
+            sh "git tag ${version}"
+
+            withCredentials([usernamePassword(
+                credentialsId: 'github-cred',
+                usernameVariable: 'GIT_USER',
+                passwordVariable: 'GIT_PASS'
+            )]) {
+                sh """
+                    git push https://${GIT_USER}:${GIT_PASS}@github.com/jeevana1409/app.git ${version}
+                """
+            }
+
+            echo "✅ Tag ${version} created and pushed successfully."
+        }
+    }
+}
 
         stage('Create Pull Request to Dev') {
             when {
