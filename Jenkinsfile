@@ -26,6 +26,30 @@ pipeline {
                     waitForQualityGate abortPipeline: true
                 }
             }
-        }    
+        }  
+        stage('Create Pull Request to Dev') {
+            when {
+                not {
+                    branch 'dev'
+                }
+            }
+            steps {
+                sh 'echo Branch is: $BRANCH_NAME'   
+
+                withCredentials([string(credentialsId: 'github-cred', variable: 'GITHUB_TOKEN')]) {
+                    sh """
+                        curl -X POST https://api.github.com/repos/jeevana1409/app/pulls \
+                        -H "Authorization: token \$GITHUB_TOKEN" \
+                        -H "Accept: application/vnd.github.v3+json" \
+                        -d '{
+                            "title": "Auto PR: ${env.GIT_BRANCH} → dev",
+                            "head": "feature-branch-xyz",
+                            "base": "dev",
+                            "body": "Automatically created after successful SonarQube Quality Gate."
+                        }'
+                    """
+                }
+            }
+        }
     }
 }
