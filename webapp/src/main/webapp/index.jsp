@@ -1,6 +1,6 @@
 <form action="action_page.php">
   <div class="container">
-    <h1>Welcome!! JEEVANASAI TO OUR INSTITUTE!!</h1>
+    <h1>Welcome!! JEEVANASAI NAVEEN PRAGYAN NANDAN !!</h1>
     <p>Please fill in this form for registration!!</p>
     <hr>
     <br>  
