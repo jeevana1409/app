@@ -20,29 +20,29 @@ pipeline {
                 checkout scm
             }
         }
-
         stage('Initialization - Version Check') {
-            when {
-                branch 'dev'
+    when {
+        branch 'dev'
+    }
+    steps {
+        script {
+            echo "Fetching tags..."
+            sh 'git fetch --tags'
+
+            def tag = sh(
+                script: "git describe --tags --abbrev=0 || echo 'NO_TAG'",
+                returnStdout: true
+            ).trim()
+
+            if (tag == "NO_TAG") {
+                error "❌ No Git tag found."
             }
-            steps {
-                script {
-                    echo "Checking Git tag..."
 
-                    def tag = sh(
-                        script: "git describe --tags --abbrev=0 || echo 'NO_TAG'",
-                        returnStdout: true
-                    ).trim()
-
-                    if (tag == "NO_TAG") {
-                        error "❌ No Git tag found. Tag is mandatory before deployment."
-                    }
-
-                    env.APP_VERSION = tag
-                    echo "Using version: ${env.APP_VERSION}"
-                }
-            }
+            env.APP_VERSION = tag
+            echo "Using version: ${env.APP_VERSION}"
         }
+    }
+}
 
         stage('Build') {
             when {
