@@ -23,7 +23,7 @@ pipeline {
 
         stage('Build & Sonar (Feature Branch)') {
             when {
-                expression { env.BRANCH_NAME.startsWith("feature/") }
+                expression { env.BRANCH_NAME.startsWith("feature") }
             }
             steps {
                 withSonarQubeEnv("${SONARQUBE_SERVER}") {
