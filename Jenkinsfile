@@ -34,7 +34,7 @@ pipeline {
 
         stage('Quality Gate') {
             when {
-                expression { env.BRANCH_NAME.startsWith("feature/") }
+                expression { env.BRANCH_NAME.startsWith("feature") }
             }
             steps {
                 timeout(time: 2, unit: 'MINUTES') {
@@ -45,7 +45,7 @@ pipeline {
 
         stage('Create PR to Dev') {
             when {
-                expression { env.BRANCH_NAME.startsWith("feature/") }
+                expression { env.BRANCH_NAME.startsWith("feature") }
             }
             steps {
                 withCredentials([string(credentialsId: 'github-cred', variable: 'GITHUB_TOKEN')]) {
