@@ -85,23 +85,21 @@ pipeline {
         }
 
         stage('Deploy to Dev Server') {
-            when {
-                branch 'dev'
-            }
-            steps {
-                script {
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no ${DEV_SERVER} '
-                        docker pull ${DOCKER_IMAGE}:${APP_VERSION} &&
-                        docker stop app || true &&
-                        docker rm app || true &&
-                        docker run -d -p 8080:8080 --name app ${DOCKER_IMAGE}:${APP_VERSION}
-                        '
-                    '''
-                }
+    steps {
+        script {
+            sshagent(credentials: ['dev-server-ssh']) {
+                sh """
+                ssh -o StrictHostKeyChecking=no ec2-user@3.27.63.129 '
+                    docker pull ${DOCKER_IMAGE}:${APP_VERSION} &&
+                    docker stop app || true &&
+                    docker rm app || true &&
+                    docker run -d -p 8080:8080 --name app ${DOCKER_IMAGE}:${APP_VERSION}
+                '
+                """
             }
         }
     }
+}
 
     post {
         success {
