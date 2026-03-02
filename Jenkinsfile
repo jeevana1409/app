@@ -5,6 +5,10 @@ pipeline {
         maven 'Maven'
     }
 
+    environment {
+        SONARQUBE_SERVER = 'sonar-server'
+    }
+
     stages {
 
         stage('Checkout') {
@@ -47,7 +51,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'github-cred', variable: 'GITHUB_TOKEN')]) {
                     sh """
                     curl -X POST \
-                    -H "Authorization: token $GITHUB_TOKEN" \
+                    -H "Authorization: token \$GITHUB_TOKEN" \
                     -H "Accept: application/vnd.github.v3+json" \
                     https://api.github.com/repos/YOUR_USERNAME/YOUR_REPO/pulls \
                     -d '{
@@ -60,3 +64,7 @@ pipeline {
                 }
             }
         }
+
+    }   // ← closing stages block
+
+}       // ← closing pipeline block
