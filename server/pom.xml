@@ -1,6 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" 
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -13,14 +14,18 @@
 
   <artifactId>server</artifactId>
   <packaging>jar</packaging>
+
   <name>Server</name>
-  <description>Logic.</description>
+  <description>Logic module</description>
 
   <build>
     <finalName>${project.artifactId}</finalName>
   </build>
 
   <dependencies>
+
+    <!-- Versions come from parent dependencyManagement -->
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit-dep</artifactId>
@@ -44,20 +49,7 @@
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
-  </dependencies>
 
-  <!-- Added for Nexus deployment -->
-  <distributionManagement>
-    <repository>
-      <id>nexus</id>
-      <name>Releases</name>
-      <url>http://3.106.189.55:8081/repository/my-maven-releases/</url>
-    </repository>
-    <snapshotRepository>
-      <id>nexus</id>
-      <name>Snapshots</name>
-      <url>http://3.106.189.55:8081/repository/maven-snapshots/</url>
-    </snapshotRepository>
-  </distributionManagement>
+  </dependencies>
 
 </project>
