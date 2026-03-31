@@ -11,105 +11,106 @@
   <packaging>pom</packaging>
 
   <name>Maven Project</name>
-  <description>Dev branch Maven project with Nexus</description>
 
+  <!-- ✅ PROPERTIES -->
   <properties>
     <java.version>17</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
+  <!-- ✅ MODULES -->
   <modules>
     <module>server</module>
     <module>webapp</module>
   </modules>
 
-  <!-- ✅ Nexus Deployment -->
+  <!-- ✅ CORRECT NEXUS CONFIG -->
   <distributionManagement>
+
+    <!-- RELEASE -->
     <repository>
       <id>nexus-releases</id>
-      <name>Nexus Releases</name>
-      <url>http://3.106.189.55:8081/repository/my-maven-releases/repository/maven-releases/</url>
+      <url>http://3.106.189.55:8081/repository/maven-releases/</url>
     </repository>
 
+    <!-- SNAPSHOT -->
     <snapshotRepository>
       <id>nexus-snapshots</id>
-      <name>Nexus Snapshots</name>
-      <url>http://3.106.189.55:8081/repository/my-maven-releases/repository/maven-snapshots/</url>
+      <url>http://3.106.189.55:8081/repository/maven-snapshots/</url>
     </snapshotRepository>
+
   </distributionManagement>
 
-  <!-- ✅ Nexus Repositories -->
+  <!-- ✅ NEXUS PROXY -->
   <repositories>
     <repository>
       <id>nexus</id>
-      <url>http://3.106.189.55:8081/repository/my-maven-releases/repository/maven-public/</url>
-      <releases><enabled>true</enabled></releases>
-      <snapshots><enabled>true</enabled></snapshots>
+      <url>http://3.106.189.55:8081/repository/maven-public/</url>
     </repository>
   </repositories>
 
   <pluginRepositories>
     <pluginRepository>
-      <id>nexus-plugins</id>
-      <url>http://3.106.189.55:8081/repository/my-maven-releases/repository/maven-public/</url>
+      <id>nexus</id>
+      <url>http://3.106.189.55:8081/repository/maven-public/</url>
     </pluginRepository>
   </pluginRepositories>
 
+  <!-- ✅ BUILD -->
   <build>
-    <plugins>
 
-      <!-- Compiler -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
-        <configuration>
-          <release>${java.version}</release>
-        </configuration>
-      </plugin>
+    <!-- 🔥 IMPORTANT: pluginManagement FIXES CHILD MODULE ISSUES -->
+    <pluginManagement>
+      <plugins>
 
-      <!-- WAR -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>3.4.0</version>
-        <configuration>
-          <failOnMissingWebXml>false</failOnMissingWebXml>
-        </configuration>
-      </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.11.0</version>
+          <configuration>
+            <release>${java.version}</release>
+          </configuration>
+        </plugin>
 
-      <!-- Surefire -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.2.5</version>
-      </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>3.4.0</version>
+          <configuration>
+            <failOnMissingWebXml>false</failOnMissingWebXml>
+          </configuration>
+        </plugin>
 
-      <!-- Release -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>3.0.1</version>
-        <configuration>
-          <autoVersionSubmodules>true</autoVersionSubmodules>
-        </configuration>
-      </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>3.2.5</version>
+        </plugin>
 
-      <!-- SpotBugs -->
-      <plugin>
-        <groupId>com.github.spotbugs</groupId>
-        <artifactId>spotbugs-maven-plugin</artifactId>
-        <version>4.8.3.0</version>
-      </plugin>
+        <!-- 🔥 REQUIRED FOR NEXUS DEPLOY -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.1.1</version>
+        </plugin>
 
-    </plugins>
+        <!-- VERSION UPDATE SUPPORT -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>versions-maven-plugin</artifactId>
+          <version>2.16.2</version>
+        </plugin>
+
+      </plugins>
+    </pluginManagement>
+
   </build>
 
+  <!-- ✅ DEPENDENCY MANAGEMENT (FIXES YOUR ERROR) -->
   <dependencyManagement>
     <dependencies>
 
-      <!-- Modern Servlet -->
+      <!-- Servlet -->
       <dependency>
         <groupId>jakarta.servlet</groupId>
         <artifactId>jakarta.servlet-api</artifactId>
@@ -124,7 +125,7 @@
         <scope>provided</scope>
       </dependency>
 
-      <!-- JUnit 5 -->
+      <!-- TESTING -->
       <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter</artifactId>
@@ -132,7 +133,6 @@
         <scope>test</scope>
       </dependency>
 
-      <!-- Mockito -->
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
@@ -142,12 +142,5 @@
 
     </dependencies>
   </dependencyManagement>
-
-  <scm>
-    <connection>scm:git:git@github.com:jleetutorial/maven-project.git</connection>
-    <developerConnection>scm:git:git@github.com:jleetutorial/maven-project.git</developerConnection>
-    <tag>HEAD</tag>
-    <url>https://github.com/jleetutorial/maven-project</url>
-  </scm>
 
 </project>
