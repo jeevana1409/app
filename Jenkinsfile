@@ -130,29 +130,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Deploy to QA') {
-
-            steps {
-
-                input message: "Deploy to QA?"
-
-                script {
-
-                    sshagent(credentials: ['docker-server-ssh']) {
-
-                        sh """
-                        ssh -o StrictHostKeyChecking=no ec2-user@<QA_PUBLIC_IP> "
-                        docker pull ${DOCKER_IMAGE}:${APP_VERSION} &&
-                        docker stop qa-app || true &&
-                        docker rm qa-app || true &&
-                        docker run -d -p 8080:8080 --name qa-app ${DOCKER_IMAGE}:${APP_VERSION}
-                        "
-                        """
-                    }
-                }
-            }
-        }
     }
 
     post {
